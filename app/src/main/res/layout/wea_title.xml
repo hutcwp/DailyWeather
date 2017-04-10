@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (c) 2017. The Android Project Created By Hutcwp.
+  -->
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="?attr/actionBarSize">
+
+    <Button
+        android:id="@+id/nav_btn"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:background="@drawable/city"
+        android:layout_margin="15dp"/>
+
+    <TextView
+        android:id="@+id/title_city"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:textColor="#fff"
+        android:textSize="20sp"
+        android:text="city"/>
+
+    <TextView
+        android:id="@+id/title_update_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_margin="10dp"
+        android:textColor="#fff"
+        android:textSize="16sp"
+        android:text="time"/>
+
+
+</RelativeLayout>

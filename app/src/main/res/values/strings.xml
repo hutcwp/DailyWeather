@@ -1,0 +1,17 @@
+<!--
+  ~ Copyright (c) 2017. The Android Project Created By Hutcwp.
+  -->
+
+<resources>
+    <string name="app_name">每日天气</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="city_name">城市</string>
+    <string name="weather_statu">天气状况</string>
+    <string name="tmp">气温</string>
+    <string name="back">返回</string>
+    <string name="title">标题</string>
+    <string name="title_activity_weather_info">WeatherInfoActivity</string>
+    <string name="name">每日天气</string>
+</resources>
