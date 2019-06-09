@@ -39,7 +39,7 @@ public class JsonDataPraseUtil {
                     JSONObject jsonObject = allProvince.getJSONObject(i);
 
                     Province province = new Province();
-                    province.setId(jsonObject.getInt("id"));
+                    province.setNo(jsonObject.getInt("id"));
                     province.setName(jsonObject.getString("name"));
                     province.save();
                 }

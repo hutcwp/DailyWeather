@@ -18,15 +18,15 @@ public class Province extends DataSupport{
      * name : 省名称
      */
 
-    private int id;
+    private int no;
     private String name;
 
-    public int getId() {
-        return id;
+    public int getNo() {
+        return no;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setNo(int id) {
+        this.no = id;
     }
 
     public String getName() {
