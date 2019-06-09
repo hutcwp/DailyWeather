@@ -53,7 +53,7 @@
         <fragment
             android:layout_marginTop="20dp"
             android:id="@+id/choose_ares_fragment"
-            android:name="club.hutcwp.coolweather.fragment.AreaSelecteListFragment"
+            android:name="club.hutcwp.coolweather.fragment.AreaSelectListFragment"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="start" />

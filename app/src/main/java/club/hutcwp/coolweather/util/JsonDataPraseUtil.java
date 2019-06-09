@@ -26,16 +26,13 @@ import club.hutcwp.coolweather.bean.weather.Weather;
 
 public class JsonDataPraseUtil {
 
-
     /**
      * 处理省的数据
      * @param response
      * @return
      */
     public static boolean handleProvinceResponse(String response){
-
         if(!TextUtils.isEmpty(response)){
-
             try {
                 JSONArray allProvince = new JSONArray(response);
                 for (int i = 0; i < allProvince.length(); i++) {
@@ -52,7 +49,6 @@ public class JsonDataPraseUtil {
                 e.printStackTrace();
             }
         }
-
         return false;
     }
 
@@ -62,9 +58,7 @@ public class JsonDataPraseUtil {
      * @return
      */
     public static boolean handleCityResponse(String response,int provinceId){
-
         if(!TextUtils.isEmpty(response)){
-
             try {
                 JSONArray allCity = new JSONArray(response);
                 for (int i = 0; i < allCity.length(); i++) {
@@ -93,9 +87,7 @@ public class JsonDataPraseUtil {
      * @return
      */
     public static boolean handleCountyResponse(String response,int cityId){
-
         if(!TextUtils.isEmpty(response)){
-
             try {
                 JSONArray allCounty = new JSONArray(response);
                 for (int i = 0; i < allCounty.length(); i++) {
@@ -115,8 +107,6 @@ public class JsonDataPraseUtil {
                 e.printStackTrace();
             }
         }
-
-
         return false;
     }
 
@@ -137,11 +127,6 @@ public class JsonDataPraseUtil {
                 e.printStackTrace();
             }
         }
-
         return null;
     }
-
-
-
-
 }

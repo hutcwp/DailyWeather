@@ -37,7 +37,7 @@ import club.hutcwp.coolweather.util.LogUtil;
 import okhttp3.Call;
 import okhttp3.Response;
 
-public class AreaSelecteListFragment extends Fragment {
+public class AreaSelectListFragment extends Fragment {
 
     private final int LEVEL_PROVINCE = 0;
     private final int LEVEL_CITY = 1;
@@ -66,17 +66,12 @@ public class AreaSelecteListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_list, container, false);
-
         btn_back = (Button) view.findViewById(R.id.back);
         listView = (ListView) view.findViewById(R.id.listView);
         title_text = (TextView) view.findViewById(R.id.title);
-
-
         adapter = new CityListAdapter(getContext(), R.layout.item_listview, nameList);
         listView.setAdapter(adapter);
-
         queryProvinces();
-
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -99,7 +94,6 @@ public class AreaSelecteListFragment extends Fragment {
                         weatherInfoActivity.requestWeather(weather_id);
                     }
                 }
-
             }
         });
 
@@ -118,7 +112,6 @@ public class AreaSelecteListFragment extends Fragment {
 
 
     public void queryProvinces() {
-
         title_text.setText("省份");
         btn_back.setVisibility(View.GONE);
         provinceList = DataSupport.findAll(Province.class);
@@ -132,12 +125,11 @@ public class AreaSelecteListFragment extends Fragment {
             cur_level = LEVEL_PROVINCE;
         } else {
             String address = "http://guolin.tech/api/china/";
-            querrFromServer(address, "province");
+            queryFromServer(address, "province");
         }
     }
 
     public void queryCitys() {
-
         title_text.setText("城市");
         btn_back.setVisibility(View.VISIBLE);
         cityList = DataSupport.where("provinceId = ?", String.valueOf(selectedProvince.getId())).find(City.class);
@@ -153,14 +145,12 @@ public class AreaSelecteListFragment extends Fragment {
         } else {
             int provinceCode = selectedProvince.getId();
             String address = "http://guolin.tech/api/china/" + provinceCode;
-            querrFromServer(address, "city");
+            queryFromServer(address, "city");
         }
-
     }
 
 
     public void queryCountys() {
-
         title_text.setText("乡镇");
         btn_back.setVisibility(View.VISIBLE);
         countyList = DataSupport.where("cityId = ?", String.valueOf((selectedCity.getCityCode()))).find(County.class);
@@ -177,13 +167,12 @@ public class AreaSelecteListFragment extends Fragment {
             int provinceCode = selectedProvince.getId();
             int CityCode = selectedCity.getCityCode();
             String address = "http://guolin.tech/api/china/" + provinceCode + "/" + CityCode;
-            querrFromServer(address, "county");
+            queryFromServer(address, "county");
         }
     }
 
 
-    public void querrFromServer(String address, final String type) {
-
+    public void queryFromServer(String address, final String type) {
         showProgressDialog();
         HttpUtil.sendOkHttpRequest(address, new okhttp3.Callback() {
             @Override
@@ -222,7 +211,6 @@ public class AreaSelecteListFragment extends Fragment {
                     });
                 }
             }
-
         });
     }
 
@@ -246,6 +234,4 @@ public class AreaSelecteListFragment extends Fragment {
             progressDialog.dismiss();
         }
     }
-
-
 }

@@ -16,7 +16,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import club.hutcwp.coolweather.R;
-import club.hutcwp.coolweather.fragment.AreaSelecteListFragment;
+import club.hutcwp.coolweather.fragment.AreaSelectListFragment;
 
 /**
  * Created by hutcwp on 2017/4/9.
@@ -40,7 +40,7 @@ public class SelectCityActivity extends AppCompatActivity {
             getWindow().setStatusBarColor(Color.TRANSPARENT);
         }
 
-        AreaSelecteListFragment fragment = new AreaSelecteListFragment();
+        AreaSelectListFragment fragment = new AreaSelectListFragment();
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.replace(R.id.content, fragment);
@@ -50,7 +50,6 @@ public class SelectCityActivity extends AppCompatActivity {
         String cityCode = pref.getString("weather_id", null);
 
         if(cityCode!=null){
-
             startActivity(new Intent(this,WeatherInfoActivity.class));
         }
     }
