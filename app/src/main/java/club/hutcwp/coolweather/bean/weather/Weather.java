@@ -38,4 +38,15 @@ public class Weather {
         status = status;
     }
 
+    @Override
+    public String toString() {
+        return "Weather{" +
+                "basic=" + basic +
+                ", aqi=" + aqi +
+                ", now=" + now +
+                ", status='" + status + '\'' +
+                ", suggestion=" + suggestion +
+                ", forecastList=" + forecastList +
+                '}';
+    }
 }

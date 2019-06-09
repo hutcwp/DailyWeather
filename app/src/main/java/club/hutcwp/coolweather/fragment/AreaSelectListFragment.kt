@@ -36,7 +36,13 @@ import java.util.*
 
 class AreaSelectListFragment : Fragment() {
 
-    private var curLevel = 0
+    enum class Level {
+        Province,
+        City,
+        Country
+    }
+
+    private var curLevel = Level.Province //代表当前属于第几层级
 
     private var selectedProvince: Province? = null
     private var selectedCity: City? = null
@@ -44,7 +50,7 @@ class AreaSelectListFragment : Fragment() {
     private var provinceList = mutableListOf<Province>()
     private var cityList = mutableListOf<City>()
     private var countyList = mutableListOf<County>()
-    private val nameList = ArrayList<String>()
+    private val itemList = ArrayList<String>()
 
     private var adapter: CityListAdapter? = null
     private var listView: ListView? = null
@@ -52,6 +58,7 @@ class AreaSelectListFragment : Fragment() {
     private var btnBack: Button? = null
     private var titleText: TextView? = null
     private var progressDialog: ProgressDialog? = null
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -66,20 +73,19 @@ class AreaSelectListFragment : Fragment() {
         btnBack = view.findViewById<View>(R.id.back) as Button
         listView = view.findViewById<View>(R.id.listView) as ListView
         titleText = view.findViewById<View>(R.id.title) as TextView
-
     }
 
     private fun setListener() {
-        adapter = CityListAdapter(context!!, R.layout.item_listview, nameList)
+        adapter = CityListAdapter(context!!, R.layout.item_listview, itemList)
         listView!!.adapter = adapter
         listView!!.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
-            if (curLevel == LEVEL_PROVINCE) {
+            if (curLevel == Level.Province) {
                 selectedProvince = provinceList[position]
                 queryCities()
-            } else if (curLevel == LEVEL_CITY) {
+            } else if (curLevel == Level.City) {
                 selectedCity = cityList[position]
                 queryCounties()
-            } else if (curLevel == LEVEL_COUNTY) {
+            } else if (curLevel == Level.Country) {
                 val weatherId = countyList[position].weather_id
                 if (activity is SelectCityActivity) {
                     val intent = Intent(activity, WeatherInfoActivity::class.java)
@@ -95,9 +101,9 @@ class AreaSelectListFragment : Fragment() {
         }
 
         btnBack!!.setOnClickListener {
-            if (curLevel == LEVEL_COUNTY) {
+            if (curLevel == Level.Country) {
                 queryCities()
-            } else if (curLevel == LEVEL_CITY) {
+            } else if (curLevel == Level.City) {
                 queryProvinces()
             }
         }
@@ -113,41 +119,20 @@ class AreaSelectListFragment : Fragment() {
     private fun queryCities() {
         titleText!!.text = "城市"
         btnBack!!.visibility = View.VISIBLE
-        nameList.clear()
-        if (cityList.isNotEmpty()) {
-            nameList.clear()
-            for (city in cityList) {
-                nameList.add(city.name)
-            }
-            adapter!!.notifyDataSetChanged()
-            listView!!.setSelection(0)
-            curLevel = LEVEL_CITY
-        } else {
-            val provinceCode = selectedProvince!!.no
-            val address = BASE_API + provinceCode
-            queryFromServer(address, "city")
-        }
+        itemList.clear()
+        val provinceCode = selectedProvince!!.no
+        val address = BASE_API + provinceCode
+        queryFromServer(address, "city")
     }
-
 
     private fun queryCounties() {
         titleText!!.text = "乡镇"
         btnBack!!.visibility = View.VISIBLE
-        nameList.clear()
-        if (countyList.isNotEmpty()) {
-            for (county in countyList) {
-                LogUtil.i("test", "111")
-                nameList.add(county.name)
-            }
-            adapter!!.notifyDataSetChanged()
-            listView!!.setSelection(0)
-            curLevel = LEVEL_COUNTY
-        } else {
-            val provinceCode = selectedProvince!!.no
-            val cityCode = selectedCity!!.cityCode
-            val address = "$BASE_API$provinceCode/$cityCode"
-            queryFromServer(address, "county")
-        }
+        itemList.clear()
+        val provinceCode = selectedProvince!!.no
+        val cityCode = selectedCity!!.cityCode
+        val address = "$BASE_API$provinceCode/$cityCode"
+        queryFromServer(address, "county")
     }
 
     /**
@@ -158,22 +143,21 @@ class AreaSelectListFragment : Fragment() {
     fun handleProvinceResponse(response: String) {
         if (!TextUtils.isEmpty(response)) {
             try {
-                nameList.clear()
+                itemList.clear()
                 val allProvince = JSONArray(response)
                 for (i in 0 until allProvince.length()) {
                     val jsonObject: JSONObject = allProvince[i] as JSONObject
-                    nameList.add(jsonObject.getString("name"))
+                    itemList.add(jsonObject.getString("name"))
                     val province = Province()
                     province.no = jsonObject.getInt("id")
                     province.name = jsonObject.getString("name")
-                    province.save()
                     provinceList.add(province)
                 }
 
                 activity?.runOnUiThread {
                     adapter!!.notifyDataSetChanged()
                     listView!!.setSelection(0)
-                    curLevel = LEVEL_PROVINCE
+                    curLevel = Level.Province
                 }
             } catch (e: JSONException) {
                 e.printStackTrace()
@@ -189,24 +173,22 @@ class AreaSelectListFragment : Fragment() {
     fun handleCityResponse(response: String, provinceId: Int) {
         if (!TextUtils.isEmpty(response)) {
             try {
-                nameList.clear()
+                itemList.clear()
                 val allCity = JSONArray(response)
                 for (i in 0 until allCity.length()) {
                     val jsonObject = allCity.getJSONObject(i)
-
                     val city = City()
                     city.cityCode = jsonObject.getInt("id")
                     city.provinceId = provinceId
                     city.name = jsonObject.getString("name")
-                    city.save()
                     cityList.add(city)
-                    nameList.add(jsonObject.getString("name"))
+                    itemList.add(jsonObject.getString("name"))
                 }
 
                 activity?.runOnUiThread {
                     adapter!!.notifyDataSetChanged()
                     listView!!.setSelection(0)
-                    curLevel = LEVEL_CITY
+                    curLevel = Level.City
                 }
             } catch (e: JSONException) {
                 e.printStackTrace()
@@ -223,7 +205,7 @@ class AreaSelectListFragment : Fragment() {
         if (!TextUtils.isEmpty(response)) {
             try {
                 val allCounty = JSONArray(response)
-                nameList.clear()
+                itemList.clear()
                 for (i in 0 until allCounty.length()) {
                     LogUtil.d("test", "county11")
                     val jsonObject = allCounty.getJSONObject(i)
@@ -233,14 +215,13 @@ class AreaSelectListFragment : Fragment() {
                     county.id = jsonObject.getInt("id")
                     county.name = jsonObject.getString("name")
                     county.weather_id = jsonObject.getString("weather_id")
-                    county.save()
                     countyList.add(county)
-                    nameList.add(jsonObject.getString("name"))
+                    itemList.add(jsonObject.getString("name"))
                 }
                 activity?.runOnUiThread {
                     adapter!!.notifyDataSetChanged()
                     listView!!.setSelection(0)
-                    curLevel = LEVEL_COUNTY
+                    curLevel = Level.Country
                 }
             } catch (e: JSONException) {
                 e.printStackTrace()
@@ -296,9 +277,6 @@ class AreaSelectListFragment : Fragment() {
     }
 
     companion object {
-        private const val LEVEL_PROVINCE = 0
-        private const val LEVEL_CITY = 1
-        private const val LEVEL_COUNTY = 2
         private const val TAG = "AreaSelectListFragment"
         private const val BASE_API = "http://guolin.tech/api/china/"
     }

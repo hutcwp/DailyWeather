@@ -11,6 +11,7 @@ import android.preference.PreferenceManager
 import android.support.v4.widget.DrawerLayout
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.app.AppCompatActivity
+import android.text.TextUtils
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -18,12 +19,13 @@ import android.widget.*
 import club.hutcwp.coolweather.R
 import club.hutcwp.coolweather.bean.weather.Weather
 import club.hutcwp.coolweather.util.HttpUtil
-import club.hutcwp.coolweather.util.JsonDataPraseUtil
 import club.hutcwp.coolweather.util.LogUtil
 import com.bumptech.glide.Glide
+import com.google.gson.Gson
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Response
+import org.json.JSONObject
 import java.io.IOException
 
 class WeatherInfoActivity : AppCompatActivity() {
@@ -60,7 +62,7 @@ class WeatherInfoActivity : AppCompatActivity() {
         val weatherString = prefs.getString("weather", null)
         if (weatherString != null) {
             weatherLayout!!.visibility = View.INVISIBLE
-            val weather = JsonDataPraseUtil.handleWeatherInfoResponse(weatherString)
+            val weather = handleWeatherInfoResponse(weatherString)
             if (weather != null) {
                 weatherId = weather.basic.id
             }
@@ -92,28 +94,24 @@ class WeatherInfoActivity : AppCompatActivity() {
         /**
          * 此时处于的线程非主线程
          */
-        val address = ("http://guolin.tech/api/weather?cityid="
+        val weatherUrl = ("http://guolin.tech/api/weather?cityid="
                 + weather_id
                 + "&key=40ac802a67574c119bca4e2089c644cd")
 
-        HttpUtil.sendOkHttpRequest(address, object : Callback {
+        LogUtil.i(TAG, "[requestWeather]: weatherUrl=$weatherUrl")
+        HttpUtil.sendOkHttpRequest(weatherUrl, object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 Toast.makeText(this@WeatherInfoActivity, "加载失败", Toast.LENGTH_SHORT).show()
             }
 
-            @Throws(IOException::class)
             override fun onResponse(call: Call, response: Response) {
                 val responseText = response.body().string()
-                val weather = JsonDataPraseUtil.handleWeatherInfoResponse(responseText)
+                val weather = handleWeatherInfoResponse(responseText)
                 runOnUiThread {
-                    LogUtil.d("test1", "weather" + (weather == null))
-                    if (weather != null) {
-                        LogUtil.d("test1", "ok?" + weather.getStatus())
-                    }
-                    LogUtil.d("test1", weather_id)
-                    //更新当前城市
-                    weatherId = weather_id
-                    if (weather != null) {
+                    weather?.let {
+                        LogUtil.d(TAG, "weather = $weather")
+                        //更新当前城市
+                        weatherId = weather_id
                         if ("ok" == weather.getStatus()) {
                             val editor = PreferenceManager
                                     .getDefaultSharedPreferences(this@WeatherInfoActivity)
@@ -122,7 +120,6 @@ class WeatherInfoActivity : AppCompatActivity() {
                             editor.putString("weather_id", weather_id)
                             editor.apply()
                             showWeatherInfo(weather)
-
                         } else {
                             Toast.makeText(this@WeatherInfoActivity, "获取天气信息失败", Toast.LENGTH_SHORT).show()
                         }
@@ -141,14 +138,14 @@ class WeatherInfoActivity : AppCompatActivity() {
 
     fun showWeatherInfo(weather: Weather?) {
         val tmp = weather!!.now.tmp + "°C"
-        val weatherInfo = weather.now.cond.txt
+        val weatherInfo = weather.now.cond?.txt
         val cityName = weather.basic.city
-        val updateTime = weather.basic.update.loc.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1]
-        val aqi = weather.aqi.city.aqi
-        val pm25 = weather.aqi.city.pm25
-        val comfort = "舒适度" + weather.suggestion.comf.txt
-        val washCar = "洗车指数" + weather.suggestion.cw.txt
-        val sportSuggestion = "运动建议" + weather.suggestion.sport.txt
+        val updateTime = weather.basic.update?.loc?.split(" ".toRegex())?.dropLastWhile { it.isEmpty() }?.toTypedArray()?.get(1)
+        val aqi = weather.aqi.city?.aqi
+        val pm25 = weather.aqi.city?.pm25
+        val comfort = "舒适度" + weather.suggestion.comf?.txt
+        val washCar = "洗车指数" + weather.suggestion.cw?.txt
+        val sportSuggestion = "运动建议" + weather.suggestion.sport?.txt
 
         degreeText!!.text = tmp
         titleCity!!.text = cityName
@@ -169,9 +166,9 @@ class WeatherInfoActivity : AppCompatActivity() {
             val maxText = view.findViewById<View>(R.id.max_text) as TextView
             val minText = view.findViewById<View>(R.id.min_text) as TextView
             dateText.text = forecast.date
-            infoText.text = forecast.cond.txt_d
-            maxText.text = forecast.tmp.max
-            minText.text = forecast.tmp.min
+            infoText.text = forecast.cond?.txt_d
+            maxText.text = forecast.tmp?.max
+            minText.text = forecast.tmp?.min
             forecastLayout!!.addView(view)
         }
         weatherLayout!!.visibility = View.VISIBLE
@@ -195,7 +192,27 @@ class WeatherInfoActivity : AppCompatActivity() {
         sportText = findViewById<View>(R.id.sport_text) as TextView
     }
 
+    /**
+     * 处理具体天气数据
+     * @param response
+     * @return
+     */
+    fun handleWeatherInfoResponse(response: String): Weather? {
+        if (!TextUtils.isEmpty(response)) {
+            try {
+                val jsonObject = JSONObject(response)
+                val jsonArray = jsonObject.getJSONArray("HeWeather")
+                val weatherInfo = jsonArray.getJSONObject(0).toString()
+                return Gson().fromJson(weatherInfo, Weather::class.java)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+        return null
+    }
+
     companion object {
+        private const val TAG = "WeatherInfoActivity"
         private const val BING_PIC_URL = "https://cn.bing.com/th?id=OHR.Biorocks_ROW7976287935_1920x1080.jpg&rf=LaDigue_1920x1081920x1080.jpg"
     }
 }

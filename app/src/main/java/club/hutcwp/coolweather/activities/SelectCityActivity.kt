@@ -48,8 +48,8 @@ class SelectCityActivity : AppCompatActivity() {
         val pref = PreferenceManager.getDefaultSharedPreferences(this)
         val cityCode = pref.getString("weather_id", null)
 
-//        if (cityCode != null) {
-//            startActivity(Intent(this, WeatherInfoActivity::class.java))
-//        }
+        if (cityCode != null) {
+            startActivity(Intent(this, WeatherInfoActivity::class.java))
+        }
     }
 }
