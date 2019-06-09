@@ -10,7 +10,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.support.v4.app.Fragment
+import androidx.fragment.app.Fragment
 import android.text.TextUtils
 import android.util.Log
 import android.view.LayoutInflater
@@ -144,6 +144,7 @@ class AreaSelectListFragment : Fragment() {
         if (!TextUtils.isEmpty(response)) {
             try {
                 itemList.clear()
+                provinceList.clear()
                 val allProvince = JSONArray(response)
                 for (i in 0 until allProvince.length()) {
                     val jsonObject: JSONObject = allProvince[i] as JSONObject
@@ -174,6 +175,7 @@ class AreaSelectListFragment : Fragment() {
         if (!TextUtils.isEmpty(response)) {
             try {
                 itemList.clear()
+                cityList.clear()
                 val allCity = JSONArray(response)
                 for (i in 0 until allCity.length()) {
                     val jsonObject = allCity.getJSONObject(i)
@@ -206,6 +208,7 @@ class AreaSelectListFragment : Fragment() {
             try {
                 val allCounty = JSONArray(response)
                 itemList.clear()
+                countyList.clear()
                 for (i in 0 until allCounty.length()) {
                     LogUtil.d("test", "county11")
                     val jsonObject = allCounty.getJSONObject(i)
@@ -234,6 +237,7 @@ class AreaSelectListFragment : Fragment() {
         showProgressDialog()
         HttpUtil.sendOkHttpRequest(address, object : okhttp3.Callback {
             override fun onFailure(call: Call, e: IOException) {
+                LogUtil.e(TAG, "request fail ,e = $e")
                 closeProgressDialog()
                 val h = Handler(Looper.getMainLooper())
                 h.post {
@@ -244,6 +248,7 @@ class AreaSelectListFragment : Fragment() {
             @Throws(IOException::class)
             override fun onResponse(call: Call, response: Response) {
                 val responseText = response.body().string()
+                LogUtil.i(TAG, "request response = $responseText")
                 closeProgressDialog()
                 when (type) {
                     "province" -> handleProvinceResponse(responseText)
